@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id" class="transition-colors duration-300">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvestVision - yFinance Integrated</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .loader {
+            border-top-color: #10b981;
+            animation: spinner 0.8s linear infinite;
+        }
+
+        @keyframes spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+
+    <div class="min-h-screen p-4 md:p-8">
+        <div class="max-w-6xl mx-auto">
+            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900 italic tracking-tight dark:text-white">Invest<span
+                            class="text-emerald-600">Vision</span>.</h1>
+                    <p class="text-slate-500 font-medium dark:text-slate-400">
+                        Simulate your investment
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Tombol Toggle Dark Mode -->
+                    <button id="themeToggle"
+                        class="p-2.5 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-yellow-400 dark:hover:bg-slate-700">
+                        <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0A9 9 0 115.55 12a9 9 0 0112.728-12.728z">
+                            </path>
+                        </svg>
+                        <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                            </path>
+                        </svg>
+                    </button>
+
+                    <div id="playbackStatus"
+                        class="hidden flex items-center bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-xs font-black animate-pulse dark:bg-emerald-900/30 dark:text-emerald-400">
+                        <span class="mr-2">●</span> SIMULASI AKTIF
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Sidebar: Input -->
+                <div class="space-y-6">
+                    <div
+                        class="bg-white p-6 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
+                        <h2
+                            class="text-xs font-black mb-6 text-slate-400 uppercase tracking-widest dark:text-slate-500">
+                            Konfigurasi Aset</h2>
+
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Ticker</label>
+                                    <input placeholder="select ticker" type="text" id="assetTicker" list="tickerList"
+                                        value=""
+                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none uppercase font-black dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
+                                    <datalist id="tickerList">
+                                    </datalist>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Currency</label>
+                                    <select id="currency"
+                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
+                                        <option value="IDR">IDR (Rp)</option>
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Modal
+                                        Awal</label>
+                                    <input type="text" id="initialCapital" value="0"
+                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Top-Up</label>
+                                    <input type="text" id="topupAmount" value="1000000"
+                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label
+                                    class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Frekuensi</label>
+                                <select id="interval"
+                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
+                                    <option value="365">Harian</option>
+                                    <option value="52">Mingguan</option>
+                                    <option value="12" selected>Bulanan</option>
+                                    <option value="4">Kuartalan</option>
+                                    <option value="1">Tahunan</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <label
+                                        class="text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Maks
+                                        Durasi</label>
+                                    <span class="text-emerald-600 font-black dark:text-emerald-500"
+                                        id="durationDisplay">10 Tahun</span>
+                                </div>
+                                <input type="range" id="duration" min="1" max="40" value="10"
+                                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 dark:bg-slate-700">
+                            </div>
+
+                            <button id="simulateBtn"
+                                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 dark:shadow-none">
+                                <span id="btnText">Jalankan Simulasi</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Asset Info Card -->
+                    <div id="assetCard"
+                        class="bg-slate-900 p-6 rounded-[32px] text-white hidden border border-slate-800">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 id="assetName" class="font-bold text-xs text-emerald-400 uppercase mb-1">--</h3>
+                                <p id="assetTickerLabel" class="text-3xl font-black tracking-tighter uppercase">--</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-slate-500 uppercase">CAGR Histori</p>
+                                <p id="assetCagr" class="text-xl font-bold text-emerald-400">--%</p>
+                            </div>
+                        </div>
+                        <p id="assetDesc" class="text-[10px] text-slate-400 leading-tight">--</p>
+                    </div>
+                </div>
+
+                <!-- Main: Stats & Chart -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div
+                            class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+                            <p class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500">Total
+                                Modal</p>
+                            <p id="statInvested" class="text-xl font-black text-slate-800 dark:text-white">0</p>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
+                            <p class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500">Total
+                                Keuntungan</p>
+                            <p id="statProfit" class="text-xl font-black text-emerald-600 dark:text-emerald-500">0</p>
+                        </div>
+                        <div id="statTotalContainer"
+                            class="bg-white p-6 rounded-3xl border-transparent border-2 shadow-lg dark:bg-slate-900/50 dark:shadow-none">
+                            <p id="statTotalLabel" class="text-[10px] text-emerald-400 font-black uppercase mb-1">Nilai
+                                Akhir</p>
+                            <p id="statTotal" class="text-xl font-black">0</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white p-6 md:p-10 rounded-[40px] shadow-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
+                        <div class="mb-8">
+                            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight dark:text-white">
+                                Proyeksi Portfolio</h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Berdasarkan rata-rata pertumbuhan riil
+                                10 tahun terakhir.</p>
+                        </div>
+                        <div class="h-[400px]">
+                            <div id="chart-placeholder" class="w-full h-full flex items-center justify-center">
+                                nothing to se here, run simulation first
+                            </div>
+
+                            <canvas id="growthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay Loading -->
+    <div id="loader"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-10 rounded-[40px] shadow-2xl text-center dark:bg-slate-800">
+            <div class="loader w-12 h-12 border-4 border-slate-100 rounded-full mx-auto mb-4 dark:border-slate-700">
+            </div>
+            <p class="font-black text-slate-800 text-sm uppercase dark:text-white">Menghubungkan ke Backend Python...
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let chartInstance = null;
+        let animationInterval = null;
+        let isAnimating = false;
+        let currentSimulationData = null;
+        let simulationStartYear = null;
+
+        const BACKEND_URL = "http://localhost:5000";
+
+        const el = {
+            duration: document.getElementById('duration'),
+            durationDisplay: document.getElementById('durationDisplay'),
+            simulateBtn: document.getElementById('simulateBtn'),
+            btnText: document.getElementById('btnText'),
+            currency: document.getElementById('currency'),
+            loader: document.getElementById('loader'),
+            assetCard: document.getElementById('assetCard'),
+            assetName: document.getElementById('assetName'),
+            assetTickerLabel: document.getElementById('assetTickerLabel'),
+            assetCagr: document.getElementById('assetCagr'),
+            assetDesc: document.getElementById('assetDesc'),
+            statInvested: document.getElementById('statInvested'),
+            statProfit: document.getElementById('statProfit'),
+            statTotal: document.getElementById('statTotal'),
+            statTotalLabel: document.getElementById('statTotalLabel'),
+            statTotalContainer: document.getElementById('statTotalContainer'),
+            playbackStatus: document.getElementById('playbackStatus'),
+            themeToggle: document.getElementById('themeToggle'),
+            chartPlaceholder: document.getElementById('chart-placeholder')
+        };
+
+        const formatters = {
+            USD: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }),
+            IDR: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }),
+            EUR: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
+        };
+
+        // Create number formatters for input formatting (without currency symbols)
+        const inputFormatters = {
+            USD: new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }),
+            IDR: new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }),
+            EUR: new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 })
+        };
+
+        function money(val) {
+            return formatters[el.currency.value].format(val);
+        }
+
+        function formatNumberForInput(val) {
+            // First, clean the value to extract only digits and decimal point
+            let cleanVal = val.replace(/[^\d,.]/g, '');
+
+            // Handle different locale formats for thousands separators
+            const selectedCurrency = el.currency.value;
+            if (selectedCurrency === 'IDR' || selectedCurrency === 'EUR') {
+                // For IDR and EUR: dots are thousands separators, commas are decimal
+                // Replace commas with dots to handle decimal correctly for parseFloat
+                cleanVal = cleanVal.replace(/\./g, '').replace(/,/g, '.');
+            } else {
+                // For USD: commas are thousands separators, dots are decimal
+                cleanVal = cleanVal.replace(/,/g, '');
+            }
+
+            const num = parseFloat(cleanVal) || 0;
+            return inputFormatters[el.currency.value].format(num);
+        }
+
+        function updateInputValues() {
+            const initialCapitalEl = document.getElementById('initialCapital');
+            const topupAmountEl = document.getElementById('topupAmount');
+
+            // Extract raw number values correctly based on current currency format
+            let initialCapitalRaw = initialCapitalEl.value.replace(/[^\d,.]/g, '');
+            let topupAmountRaw = topupAmountEl.value.replace(/[^\d,.]/g, '');
+
+            // Handle locale-specific extraction
+            const selectedCurrency = el.currency.value;
+            if (selectedCurrency === 'IDR' || selectedCurrency === 'EUR') {
+                // For IDR and EUR: dots are thousands separators, commas are decimal
+                initialCapitalRaw = initialCapitalRaw.replace(/\./g, '').replace(/,/g, '.');
+                topupAmountRaw = topupAmountRaw.replace(/\./g, '').replace(/,/g, '.');
+            } else {
+                // For USD: commas are thousands separators
+                initialCapitalRaw = initialCapitalRaw.replace(/,/g, '');
+                topupAmountRaw = topupAmountRaw.replace(/,/g, '');
+            }
+
+            // Format with the current currency's formatter
+            initialCapitalEl.value = formatNumberForInput(initialCapitalRaw);
+            topupAmountEl.value = formatNumberForInput(topupAmountRaw);
+        }
+
+        // Add event listener for currency change
+        el.currency.addEventListener('change', function () {
+            updateInputValues();
+        });
+
+        // Add input event listener to format numbers as user types
+        document.getElementById('initialCapital').addEventListener('input', function (e) {
+            const value = e.target.value.replace(/[^\d.]/g, '');
+            e.target.value = formatNumberForInput(value);
+        });
+
+        document.getElementById('topupAmount').addEventListener('input', function (e) {
+            const value = e.target.value.replace(/[^\d.]/g, '');
+            e.target.value = formatNumberForInput(value);
+        });
+
+        // Initialize currency formatting on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            updateInputValues();
+        });
+
+        // Fungsi Toggle Tema
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+            // Re-render chart jika data ada agar warna grid update
+            if (currentSimulationData) {
+                renderUI(currentSimulationData.history.slice(0, parseInt(el.duration.value) + 1));
+            }
+        }
+
+        el.themeToggle.addEventListener('click', toggleTheme);
+
+        el.duration.addEventListener('input', (e) => {
+            el.durationDisplay.textContent = `${e.target.value} Tahun`;
+            if (!isAnimating && currentSimulationData) {
+                renderUI(currentSimulationData.history.slice(0, parseInt(e.target.value) + 1));
+            }
+        });
+
+        async function runSimulation() {
+            if (isAnimating) {
+                stopAnimation();
+                return;
+            }
+
+            el.loader.classList.remove('hidden');
+
+            // Extract numeric values from formatted inputs - handle different locale formats
+            let initialCapitalText = document.getElementById('initialCapital').value;
+            let topupAmountText = document.getElementById('topupAmount').value;
+
+            // Remove thousands separators based on selected currency
+            const selectedCurrency = document.getElementById('currency').value;
+            if (selectedCurrency === 'IDR' || selectedCurrency === 'EUR') {
+                // For IDR and EUR: dots are thousands separators, commas are decimals
+                initialCapitalText = initialCapitalText.replace(/\./g, '').replace(/,/g, '.');
+                topupAmountText = topupAmountText.replace(/\./g, '').replace(/,/g, '.');
+            } else {
+                // For USD: commas are thousands separators, dots are decimals
+                initialCapitalText = initialCapitalText.replace(/,/g, '');
+                topupAmountText = topupAmountText.replace(/,/g, '');
+            }
+
+            const initialCapitalValue = parseFloat(initialCapitalText) || 0;
+            const topupAmountValue = parseFloat(topupAmountText) || 0;
+
+            const currentYear = new Date().getFullYear();
+            const duration = parseInt(el.duration.value);
+            simulationStartYear = currentYear; // Store the start year for chart labels
+            const payload = {
+                ticker: document.getElementById('assetTicker').value,
+                initialCapital: initialCapitalValue,
+                topupAmount: topupAmountValue,
+                startYear: currentYear,
+                endYear: currentYear + duration,
+                duration: duration,
+                interval: parseInt(document.getElementById('interval').value)
+            };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/simulate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+
+                currentSimulationData = data;
+                el.loader.classList.add('hidden');
+
+                // Mulai Animasi
+                startAnimation(data);
+
+            } catch (err) {
+                el.loader.classList.add('hidden');
+                alert("Error: " + err.message);
+            }
+        }
+
+        function startAnimation(data) {
+            isAnimating = true;
+            el.chartPlaceholder.classList.add('hidden');
+            el.btnText.textContent = "Berhenti";
+            el.simulateBtn.classList.replace('bg-emerald-600', 'bg-red-600');
+            el.playbackStatus.classList.remove('hidden');
+
+            // Update info aset
+            el.assetCard.classList.remove('hidden');
+            el.assetName.textContent = data.asset.name;
+            el.assetTickerLabel.textContent = document.getElementById('assetTicker').value;
+            el.assetCagr.textContent = `${data.asset.cagr}%`;
+            el.assetDesc.textContent = data.asset.desc;
+
+            if (data.asset.cagr > 0) {
+                el.assetCagr.style.color = '#10b981';
+            } else {
+                el.assetCagr.style.color = '#ef4444';
+            }
+
+            let step = 0;
+            const target = data.history.length - 1;
+            const threshold = target > 0 ? 3000 : 0; // 3 detik total, or 0 if no history
+
+            animationInterval = setInterval(() => {
+                if (step <= target) {
+                    renderUI(data.history.slice(0, step + 1));
+                    step++;
+                } else {
+                    stopAnimation();
+                }
+            }, target > 0 ? threshold / target : 0);
+        }
+
+        function stopAnimation() {
+            isAnimating = false;
+            clearInterval(animationInterval);
+
+            el.btnText.textContent = "Jalankan Simulasi";
+            el.simulateBtn.classList.replace('bg-red-600', 'bg-emerald-600');
+            el.playbackStatus.classList.add('hidden');
+        }
+
+        function renderUI(currentHistory) {
+            const latest = currentHistory[currentHistory.length - 1];
+            const isDark = document.documentElement.classList.contains('dark');
+
+            // Warna dinamis untuk Chart
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            const profit = latest.balance - latest.invested;
+
+            // Update Stats
+            el.statInvested.textContent = money(latest.invested);
+            el.statProfit.textContent = money(profit);
+            el.statTotal.textContent = money(latest.balance);
+
+            if (profit > 0) {
+                el.statTotalContainer.style.borderColor = '#10b981';
+                el.statTotalLabel.style.color = '#10b981';
+                el.statProfit.style.color = '#10b981';
+                el.statTotal.style.color = '#10b981';
+            } else {
+                el.statTotalContainer.style.borderColor = '#ef4444';
+                el.statTotalLabel.style.color = '#ef4444';
+                el.statTotal.style.color = '#ef4444';
+                el.statProfit.style.color = '#ef4444';
+            }
+
+            // Update Chart
+            const ctx = document.getElementById('growthChart').getContext('2d');
+            const labels = currentHistory.map(d => {
+                // Calculate the actual year using simulation start year
+                const actualYear = simulationStartYear + d.year;
+                return actualYear;
+            });
+
+            // Find min and max values to properly scale the chart, including negative values
+            const allBalanceValues = currentHistory.map(d => d.balance);
+            const allInvestedValues = currentHistory.map(d => d.invested);
+            const allValues = [...allBalanceValues, ...allInvestedValues];
+            const minValue = Math.min(0, ...allValues); // Ensure minimum includes 0 or negative values
+            const maxValue = Math.max(0, ...allValues); // Ensure maximum includes 0 or positive values
+
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Nilai Aset',
+                            data: currentHistory.map(d => d.balance),
+                            borderColor: profit > 0 ? '#10b981' : '#ef4444', // red if any loss (balance < invested), otherwise green
+                            borderWidth: 4,
+                            backgroundColor: profit > 0
+                                ? (isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
+                                : (isDark ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)'),
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Modal',
+                            data: currentHistory.map(d => d.invested),
+                            borderColor: isDark ? '#475569' : '#cbd5e1',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += money(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: minValue,
+                            max: maxValue,
+                            ticks: {
+                                callback: v => money(v),
+                                font: { size: 10 },
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: textColor }
+                        }
+                    },
+                    animation: { duration: 300 }
+                }
+            });
+        }
+
+        // Load tickers from the API on page load
+        document.addEventListener('DOMContentLoaded', async function () {
+            await loadTickers();
+        });
+
+        async function loadTickers() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/tickers`);
+                const data = await response.json();
+
+                if (data.tickers) {
+                    // Clear existing options in the datalist
+                    const datalist = document.getElementById('tickerList');
+                    datalist.innerHTML = '';
+
+                    // Add the loaded tickers to the datalist
+                    data.tickers.forEach(ticker => {
+                        const option = document.createElement('option');
+                        option.value = ticker.symbol;
+                        option.textContent = `${ticker.name} (${ticker.symbol})`;
+                        datalist.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tickers:', error);
+                // If API fails, keep the default options
+            }
+        }
+
+        el.simulateBtn.addEventListener('click', runSimulation);
+    </script>
+</body>
+
+</html>
