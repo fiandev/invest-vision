@@ -1,19 +1,23 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS  # Import pustaka CORS
 import yfinance as yf
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import os
 
-app = Flask(__name__)
-# Mengaktifkan CORS untuk semua rute agar bisa diakses dari origin mana pun
+# Configure Flask app to use public folder for static files
+app = Flask(__name__, 
+            static_folder='public',      
+            static_url_path='/public',   
+            template_folder='views')     
+
 CORS(app)
 
 @app.route('/')
 def index():
-    # Pastikan file index.html berada di folder 'templates'
+    # Flask akan otomatis mencari 'index.html' di dalam folder 'views'
     return render_template('index.html')
-
 @app.route('/api/tickers', methods=['GET'])
 def get_tickers():
     """Endpoint to get a list of popular tickers"""
