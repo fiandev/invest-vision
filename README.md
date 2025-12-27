@@ -2,6 +2,9 @@
 
 A comprehensive investment simulation tool that allows users to model and visualize the growth of their investments over time using historical data from Yahoo Finance. This tool demonstrates the power of compound interest with various investment strategies.
 
+<img width="100%" height="auto" alt="Screenshot_20251227_130922" src="https://github.com/user-attachments/assets/2ab3e9e7-bb0f-4989-b2f3-521663560d45" />
+
+
 ## Features
 
 - Real-time financial data from Yahoo Finance
