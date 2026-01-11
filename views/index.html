@@ -1,577 +1,767 @@
 <!DOCTYPE html>
 <html lang="id" class="transition-colors duration-300">
+  <head>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-09387TQNHR"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      gtag("config", "G-09387TQNHR");
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Simulate your investment" />
+    <meta name="keywords" content="investment, simulation, stock, crypto" />
+    <meta name="author" content="Fiandev" />
+
     <title>InvestVision - Simulate your investment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        /* HTML: <div class="loader"></div> */
-        .loader {
-            height: 80px;
-            aspect-ratio: 1;
-            display: grid;
+      /* HTML: <div class="loader"></div> */
+      .loader {
+        height: 80px;
+        aspect-ratio: 1;
+        display: grid;
+      }
+
+      .loader:before,
+      .loader:after {
+        content: "";
+        --c: no-repeat linear-gradient(#fff 0 0);
+        background: var(--c), var(--c);
+        background-size: 25% 50%;
+        animation: l4 1.5s infinite linear;
+      }
+
+      .loader:after {
+        transform: scale(-1);
+      }
+
+      @keyframes l4 {
+        0%,
+        10% {
+          background-position: 33.4% 100%, 66.6% 100%;
         }
 
-        .loader:before,
-        .loader:after {
-            content: "";
-            --c: no-repeat linear-gradient(#fff 0 0);
-            background: var(--c), var(--c);
-            background-size: 25% 50%;
-            animation: l4 1.5s infinite linear;
+        40% {
+          background-position: 33.4% 0, 100% 100%;
         }
 
-        .loader:after {
-            transform: scale(-1);
+        70% {
+          background-position: 0 100%, 66.6% 0;
         }
 
-        @keyframes l4 {
-
-            0%,
-            10% {
-                background-position: 33.4% 100%, 66.6% 100%
-            }
-
-            40% {
-                background-position: 33.4% 0, 100% 100%
-            }
-
-            70% {
-                background-position: 0 100%, 66.6% 0
-            }
-
-            100% {
-                background-position: 33.4% 100%, 66.6% 100%
-            }
+        100% {
+          background-position: 33.4% 100%, 66.6% 100%;
         }
+      }
     </style>
     <script>
-        tailwind.config = {
-            darkMode: 'class'
-        }
+      tailwind.config = {
+        darkMode: "class",
+      };
     </script>
-</head>
+  </head>
 
-<body class="bg-slate-50 text-slate-900 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-
+  <body
+    class="bg-slate-50 text-slate-900 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100"
+  >
     <div class="min-h-screen p-4 md:p-8 flex flex-col">
-        <div class="max-w-6xl mx-auto w-full flex-grow">
-            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="max-w-6xl mx-auto w-full flex-grow">
+        <header
+          class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4"
+        >
+          <div>
+            <h1
+              class="text-3xl font-black text-slate-900 italic tracking-tight dark:text-white"
+            >
+              Invest<span class="text-emerald-600">Vision</span>.
+            </h1>
+            <p class="text-slate-500 font-medium dark:text-slate-400">
+              Simulate your investment
+            </p>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <!-- Tombol Toggle Dark Mode -->
+            <button
+              id="themeToggle"
+              class="p-2.5 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-yellow-400 dark:hover:bg-slate-700"
+            >
+              <svg
+                id="themeIconSun"
+                class="w-5 h-5 hidden dark:block"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0A9 9 0 115.55 12a9 9 0 0112.728-12.728z"
+                ></path>
+              </svg>
+              <svg
+                id="themeIconMoon"
+                class="w-5 h-5 block dark:hidden"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                ></path>
+              </svg>
+            </button>
+
+            <div
+              id="playbackStatus"
+              class="hidden flex items-center bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-xs font-black animate-pulse dark:bg-emerald-900/30 dark:text-emerald-400"
+            >
+              <span class="mr-2">●</span> SIMULASI AKTIF
+            </div>
+          </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <!-- Sidebar: Input -->
+          <div class="space-y-6">
+            <div
+              class="bg-white p-6 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none"
+            >
+              <h2
+                class="text-xs font-black mb-6 text-slate-400 uppercase tracking-widest dark:text-slate-500"
+              >
+                Konfigurasi Aset
+              </h2>
+
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-4">
+                  <div>
+                    <label
+                      class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                      >Ticker</label
+                    >
+                    <input
+                      placeholder="select ticker"
+                      type="text"
+                      id="assetTicker"
+                      list="tickerList"
+                      value=""
+                      class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none uppercase font-black dark:bg-slate-800 dark:ring-slate-700 dark:text-white"
+                    />
+                    <datalist id="tickerList"> </datalist>
+                  </div>
+                  <div>
+                    <label
+                      class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                      >Currency</label
+                    >
+                    <select
+                      id="currency"
+                      class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white"
+                    >
+                      <option value="IDR">IDR (Rp)</option>
+                      <option value="USD">USD ($)</option>
+                      <option value="EUR">EUR (€)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                      >Modal Awal</label
+                    >
+                    <input
+                      type="text"
+                      id="initialCapital"
+                      value="0"
+                      class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                      >Top-Up</label
+                    >
+                    <input
+                      type="text"
+                      id="topupAmount"
+                      value="1000000"
+                      class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                    <h1 class="text-3xl font-black text-slate-900 italic tracking-tight dark:text-white">Invest<span
-                            class="text-emerald-600">Vision</span>.</h1>
-                    <p class="text-slate-500 font-medium dark:text-slate-400">
-                        Simulate your investment
-                    </p>
+                  <label
+                    class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                    >Frekuensi</label
+                  >
+                  <select
+                    id="interval"
+                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white"
+                  >
+                    <option value="365">Harian</option>
+                    <option value="52">Mingguan</option>
+                    <option value="12" selected>Bulanan</option>
+                    <option value="4">Kuartalan</option>
+                    <option value="1">Tahunan</option>
+                  </select>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <!-- Tombol Toggle Dark Mode -->
-                    <button id="themeToggle"
-                        class="p-2.5 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all dark:bg-slate-800 dark:border-slate-700 dark:text-yellow-400 dark:hover:bg-slate-700">
-                        <svg id="themeIconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0A9 9 0 115.55 12a9 9 0 0112.728-12.728z">
-                            </path>
-                        </svg>
-                        <svg id="themeIconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
-                            </path>
-                        </svg>
-                    </button>
-
-                    <div id="playbackStatus"
-                        class="hidden flex items-center bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-xs font-black animate-pulse dark:bg-emerald-900/30 dark:text-emerald-400">
-                        <span class="mr-2">●</span> SIMULASI AKTIF
-                    </div>
-                </div>
-            </header>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-                <!-- Sidebar: Input -->
-                <div class="space-y-6">
-                    <div
-                        class="bg-white p-6 rounded-[32px] shadow-xl shadow-slate-200/50 border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
-                        <h2
-                            class="text-xs font-black mb-6 text-slate-400 uppercase tracking-widest dark:text-slate-500">
-                            Konfigurasi Aset</h2>
-
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-1 gap-4">
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Ticker</label>
-                                    <input placeholder="select ticker" type="text" id="assetTicker" list="tickerList"
-                                        value=""
-                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none uppercase font-black dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
-                                    <datalist id="tickerList">
-                                    </datalist>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Currency</label>
-                                    <select id="currency"
-                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 outline-none font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
-                                        <option value="IDR">IDR (Rp)</option>
-                                        <option value="USD">USD ($)</option>
-                                        <option value="EUR">EUR (€)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Modal
-                                        Awal</label>
-                                    <input type="text" id="initialCapital" value="0"
-                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Top-Up</label>
-                                    <input type="text" id="topupAmount" value="1000000"
-                                        class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label
-                                    class="block text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Frekuensi</label>
-                                <select id="interval"
-                                    class="w-full bg-slate-50 border-0 ring-1 ring-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 font-bold dark:bg-slate-800 dark:ring-slate-700 dark:text-white">
-                                    <option value="365">Harian</option>
-                                    <option value="52">Mingguan</option>
-                                    <option value="12" selected>Bulanan</option>
-                                    <option value="4">Kuartalan</option>
-                                    <option value="1">Tahunan</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <label
-                                        class="text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500">Maks
-                                        Durasi</label>
-                                    <span class="text-emerald-600 font-black dark:text-emerald-500"
-                                        id="durationDisplay">10 Tahun</span>
-                                </div>
-                                <input type="range" id="duration" min="1" max="40" value="10"
-                                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 dark:bg-slate-700">
-                            </div>
-
-                            <button id="simulateBtn"
-                                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 dark:shadow-none">
-                                <span id="btnText">Jalankan Simulasi</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Asset Info Card -->
-                    <div id="assetCard"
-                        class="bg-white dark:bg-slate-900 p-6 rounded-[32px] text-slate-900 dark:text-white hidden border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 id="assetName"
-                                    class="font-bold text-xs text-emerald-500 dark:text-emerald-400 uppercase mb-1">--
-                                </h3>
-                                <p id="assetTickerLabel" class="text-3xl font-black tracking-tighter uppercase">--</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">CAGR
-                                    Histori</p>
-                                <p id="assetCagr" class="text-xl font-bold text-emerald-500 dark:text-emerald-400">--%
-                                </p>
-                            </div>
-                        </div>
-                        <p id="assetDesc" class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">--</p>
-                    </div>
+                <div>
+                  <div class="flex justify-between mb-1">
+                    <label
+                      class="text-[10px] font-black text-slate-400 uppercase mb-1 dark:text-slate-500"
+                      >Maks Durasi</label
+                    >
+                    <span
+                      class="text-emerald-600 font-black dark:text-emerald-500"
+                      id="durationDisplay"
+                      >10 Tahun</span
+                    >
+                  </div>
+                  <input
+                    type="range"
+                    id="duration"
+                    min="1"
+                    max="40"
+                    value="10"
+                    class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 dark:bg-slate-700"
+                  />
                 </div>
 
-                <!-- Main: Stats & Chart -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div
-                            class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-                            <p class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500">Total
-                                Modal</p>
-                            <p id="statInvested" class="text-xl font-black text-slate-800 dark:text-white">0</p>
-                        </div>
-                        <div
-                            class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-                            <p class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500">Total
-                                Keuntungan</p>
-                            <p id="statProfit" class="text-xl font-black text-emerald-600 dark:text-emerald-500">0</p>
-                        </div>
-                        <div id="statTotalContainer"
-                            class="bg-white p-6 rounded-3xl border-transparent border-2 shadow-lg dark:bg-slate-900/50 dark:shadow-none">
-                            <p id="statTotalLabel" class="text-[10px] text-emerald-400 font-black uppercase mb-1">Nilai
-                                Akhir</p>
-                            <p id="statTotal" class="text-xl font-black">0</p>
-                        </div>
-                    </div>
-
-                    <div
-                        class="bg-white p-6 md:p-10 rounded-[40px] shadow-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none">
-                        <div class="mb-8">
-                            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight dark:text-white">
-                                Proyeksi Portfolio</h2>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">Berdasarkan rata-rata pertumbuhan riil
-                                10 tahun terakhir.</p>
-                        </div>
-                        <div class="h-[400px]">
-                            <div id="chart-placeholder" class="w-full h-full flex items-center justify-center">
-                                nothing to se here, run simulation first
-                            </div>
-
-                            <canvas id="growthChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+                <button
+                  id="simulateBtn"
+                  class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-emerald-100 flex items-center justify-center gap-2 dark:shadow-none"
+                >
+                  <span id="btnText">Jalankan Simulasi</span>
+                </button>
+              </div>
             </div>
 
-            <!-- Footer Section -->
-            <footer class="mt-8 pt-8 pb-8 border-t border-slate-200 dark:border-slate-800">
-                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                    <div class="text-sm font-medium text-slate-500 dark:text-slate-400 text-center md:text-left">
-                        &copy; 2025 <span
-                            class="text-slate-900 dark:text-white font-black italic tracking-tight">Invest<span
-                                class="text-emerald-600">Vision</span></span>
-                        <span class="mx-2 hidden md:inline">|</span>
-                        <span class="block md:inline mt-1 md:mt-0">Simulate Your investment</span>
-                    </div>
-
-                    <a href="https://github.com/fiandev/invest-vision" target="_blank" rel="noopener noreferrer"
-                        class="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900 text-white hover:bg-emerald-600 dark:bg-white dark:text-slate-900 dark:hover:bg-emerald-400 transition-all duration-300 group shadow-lg shadow-slate-200 dark:shadow-none">
-                        <span
-                            class="text-sm font-black lowercase tracking-wider">github.com/fiandev/invest-vision</span>
-                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                            <path
-                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                        </svg>
-                    </a>
+            <!-- Asset Info Card -->
+            <div
+              id="assetCard"
+              class="bg-white dark:bg-slate-900 p-6 rounded-[32px] text-slate-900 dark:text-white hidden border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none"
+            >
+              <div class="flex justify-between items-start mb-4">
+                <div>
+                  <h3
+                    id="assetName"
+                    class="font-bold text-xs text-emerald-500 dark:text-emerald-400 uppercase mb-1"
+                  >
+                    --
+                  </h3>
+                  <p
+                    id="assetTickerLabel"
+                    class="text-3xl font-black tracking-tighter uppercase"
+                  >
+                    --
+                  </p>
                 </div>
-            </footer>
+                <div class="text-right">
+                  <p
+                    class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase"
+                  >
+                    CAGR Histori
+                  </p>
+                  <p
+                    id="assetCagr"
+                    class="text-xl font-bold text-emerald-500 dark:text-emerald-400"
+                  >
+                    --%
+                  </p>
+                </div>
+              </div>
+              <p
+                id="assetDesc"
+                class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight"
+              >
+                --
+              </p>
+            </div>
+          </div>
+
+          <!-- Main: Stats & Chart -->
+          <div class="lg:col-span-2 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div
+                class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800"
+              >
+                <p
+                  class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500"
+                >
+                  Total Modal
+                </p>
+                <p
+                  id="statInvested"
+                  class="text-xl font-black text-slate-800 dark:text-white"
+                >
+                  0
+                </p>
+              </div>
+              <div
+                class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm dark:bg-slate-900 dark:border-slate-800"
+              >
+                <p
+                  class="text-[10px] text-slate-400 font-black uppercase mb-1 dark:text-slate-500"
+                >
+                  Total Keuntungan
+                </p>
+                <p
+                  id="statProfit"
+                  class="text-xl font-black text-emerald-600 dark:text-emerald-500"
+                >
+                  0
+                </p>
+              </div>
+              <div
+                id="statTotalContainer"
+                class="bg-white p-6 rounded-3xl border-transparent border-2 shadow-lg dark:bg-slate-900/50 dark:shadow-none"
+              >
+                <p
+                  id="statTotalLabel"
+                  class="text-[10px] text-emerald-400 font-black uppercase mb-1"
+                >
+                  Nilai Akhir
+                </p>
+                <p id="statTotal" class="text-xl font-black">0</p>
+              </div>
+            </div>
+
+            <div
+              class="bg-white p-6 md:p-10 rounded-[40px] shadow-xl border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none"
+            >
+              <div class="mb-8">
+                <h2
+                  class="text-xl font-black text-slate-800 uppercase tracking-tight dark:text-white"
+                >
+                  Proyeksi Portfolio
+                </h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                  Berdasarkan rata-rata pertumbuhan riil 10 tahun terakhir.
+                </p>
+              </div>
+              <div class="h-[400px]">
+                <div
+                  id="chart-placeholder"
+                  class="w-full h-full flex items-center justify-center"
+                >
+                  nothing to se here, run simulation first
+                </div>
+
+                <canvas id="growthChart"></canvas>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Footer Section -->
+        <footer
+          class="mt-8 pt-8 pb-8 border-t border-slate-200 dark:border-slate-800"
+        >
+          <div
+            class="flex flex-col md:flex-row justify-between items-center gap-6"
+          >
+            <div
+              class="text-sm font-medium text-slate-500 dark:text-slate-400 text-center md:text-left"
+            >
+              &copy; 2025
+              <span
+                class="text-slate-900 dark:text-white font-black italic tracking-tight"
+                >Invest<span class="text-emerald-600">Vision</span></span
+              >
+              <span class="mx-2 hidden md:inline">|</span>
+              <span class="block md:inline mt-1 md:mt-0"
+                >Simulate Your investment</span
+              >
+            </div>
+
+            <a
+              href="https://github.com/fiandev/invest-vision"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-slate-900 text-white hover:bg-emerald-600 dark:bg-white dark:text-slate-900 dark:hover:bg-emerald-400 transition-all duration-300 group shadow-lg shadow-slate-200 dark:shadow-none"
+            >
+              <span class="text-sm font-black lowercase tracking-wider"
+                >github.com/fiandev/invest-vision</span
+              >
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path
+                  d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                />
+              </svg>
+            </a>
+          </div>
+        </footer>
+      </div>
     </div>
 
     <!-- Overlay Loading -->
-    <div id="loader"
-        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-10 rounded-[40px] shadow-2xl text-center dark:bg-slate-800">
-            <div class="loader mx-auto my-4"></div>
-            <p class="font-black text-slate-800 text-sm uppercase dark:text-white">Mengambil data ...
-            </p>
-        </div>
+    <div
+      id="loader"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="bg-white p-10 rounded-[40px] shadow-2xl text-center dark:bg-slate-800"
+      >
+        <div class="loader mx-auto my-4"></div>
+        <p class="font-black text-slate-800 text-sm uppercase dark:text-white">
+          Mengambil data ...
+        </p>
+      </div>
     </div>
 
     <script>
-        let chartInstance = null;
-        let animationInterval = null;
-        let isAnimating = false;
-        let currentSimulationData = null;
-        let simulationStartYear = null;
+      let chartInstance = null;
+      let animationInterval = null;
+      let isAnimating = false;
+      let currentSimulationData = null;
+      let simulationStartYear = null;
 
-        const BACKEND_URL = window.location.origin;
+      const BACKEND_URL = window.location.origin;
 
-        const el = {
-            duration: document.getElementById('duration'),
-            durationDisplay: document.getElementById('durationDisplay'),
-            simulateBtn: document.getElementById('simulateBtn'),
-            btnText: document.getElementById('btnText'),
-            currency: document.getElementById('currency'),
-            loader: document.getElementById('loader'),
-            assetCard: document.getElementById('assetCard'),
-            assetName: document.getElementById('assetName'),
-            assetTickerLabel: document.getElementById('assetTickerLabel'),
-            assetCagr: document.getElementById('assetCagr'),
-            assetDesc: document.getElementById('assetDesc'),
-            statInvested: document.getElementById('statInvested'),
-            statProfit: document.getElementById('statProfit'),
-            statTotal: document.getElementById('statTotal'),
-            statTotalLabel: document.getElementById('statTotalLabel'),
-            statTotalContainer: document.getElementById('statTotalContainer'),
-            playbackStatus: document.getElementById('playbackStatus'),
-            themeToggle: document.getElementById('themeToggle'),
-            chartPlaceholder: document.getElementById('chart-placeholder')
+      const el = {
+        duration: document.getElementById("duration"),
+        durationDisplay: document.getElementById("durationDisplay"),
+        simulateBtn: document.getElementById("simulateBtn"),
+        btnText: document.getElementById("btnText"),
+        currency: document.getElementById("currency"),
+        loader: document.getElementById("loader"),
+        assetCard: document.getElementById("assetCard"),
+        assetName: document.getElementById("assetName"),
+        assetTickerLabel: document.getElementById("assetTickerLabel"),
+        assetCagr: document.getElementById("assetCagr"),
+        assetDesc: document.getElementById("assetDesc"),
+        statInvested: document.getElementById("statInvested"),
+        statProfit: document.getElementById("statProfit"),
+        statTotal: document.getElementById("statTotal"),
+        statTotalLabel: document.getElementById("statTotalLabel"),
+        statTotalContainer: document.getElementById("statTotalContainer"),
+        playbackStatus: document.getElementById("playbackStatus"),
+        themeToggle: document.getElementById("themeToggle"),
+        chartPlaceholder: document.getElementById("chart-placeholder"),
+      };
+
+      const formatters = {
+        USD: new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        }),
+        IDR: new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          maximumFractionDigits: 0,
+        }),
+        EUR: new Intl.NumberFormat("de-DE", {
+          style: "currency",
+          currency: "EUR",
+          maximumFractionDigits: 0,
+        }),
+      };
+
+      const inputFormatters = {
+        USD: new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }),
+        IDR: new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }),
+        EUR: new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }),
+      };
+
+      function money(val) {
+        return formatters[el.currency.value].format(val);
+      }
+
+      function formatNumberForInput(val) {
+        let cleanVal = val.replace(/[^\d,.]/g, "");
+        const selectedCurrency = el.currency.value;
+        if (selectedCurrency === "IDR" || selectedCurrency === "EUR") {
+          cleanVal = cleanVal.replace(/\./g, "").replace(/,/g, ".");
+        } else {
+          cleanVal = cleanVal.replace(/,/g, "");
+        }
+        const num = parseFloat(cleanVal) || 0;
+        return inputFormatters[el.currency.value].format(num);
+      }
+
+      function updateInputValues() {
+        const initialCapitalEl = document.getElementById("initialCapital");
+        const topupAmountEl = document.getElementById("topupAmount");
+        let initialCapitalRaw = initialCapitalEl.value.replace(/[^\d,.]/g, "");
+        let topupAmountRaw = topupAmountEl.value.replace(/[^\d,.]/g, "");
+        const selectedCurrency = el.currency.value;
+        if (selectedCurrency === "IDR" || selectedCurrency === "EUR") {
+          initialCapitalRaw = initialCapitalRaw
+            .replace(/\./g, "")
+            .replace(/,/g, ".");
+          topupAmountRaw = topupAmountRaw.replace(/\./g, "").replace(/,/g, ".");
+        } else {
+          initialCapitalRaw = initialCapitalRaw.replace(/,/g, "");
+          topupAmountRaw = topupAmountRaw.replace(/,/g, "");
+        }
+        initialCapitalEl.value = formatNumberForInput(initialCapitalRaw);
+        topupAmountEl.value = formatNumberForInput(topupAmountRaw);
+      }
+
+      // --- LOGIKA DARK MODE ---
+      function toggleTheme() {
+        const html = document.documentElement;
+        const isDark = html.classList.toggle("dark");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+
+        // Re-render chart jika ada data agar warna grid update
+        if (currentSimulationData) {
+          renderUI(
+            currentSimulationData.history.slice(
+              0,
+              parseInt(el.duration.value) + 1
+            )
+          );
+        }
+      }
+
+      // Load theme on startup
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        document.documentElement.classList.add("dark");
+      }
+
+      el.themeToggle.addEventListener("click", toggleTheme);
+
+      el.currency.addEventListener("change", () => updateInputValues());
+
+      document
+        .getElementById("initialCapital")
+        .addEventListener("input", (e) => {
+          const value = e.target.value.replace(/[^\d.]/g, "");
+          e.target.value = formatNumberForInput(value);
+        });
+
+      document.getElementById("topupAmount").addEventListener("input", (e) => {
+        const value = e.target.value.replace(/[^\d.]/g, "");
+        e.target.value = formatNumberForInput(value);
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        updateInputValues();
+        loadTickers();
+      });
+
+      el.duration.addEventListener("input", (e) => {
+        el.durationDisplay.textContent = `${e.target.value} Tahun`;
+        if (!isAnimating && currentSimulationData) {
+          renderUI(
+            currentSimulationData.history.slice(0, parseInt(e.target.value) + 1)
+          );
+        }
+      });
+
+      async function runSimulation() {
+        if (isAnimating) {
+          stopAnimation();
+          return;
+        }
+
+        el.loader.classList.remove("hidden");
+
+        let icText = document.getElementById("initialCapital").value;
+        let tuText = document.getElementById("topupAmount").value;
+        const selCur = el.currency.value;
+
+        if (selCur === "IDR" || selCur === "EUR") {
+          icText = icText.replace(/\./g, "").replace(/,/g, ".");
+          tuText = tuText.replace(/\./g, "").replace(/,/g, ".");
+        } else {
+          icText = icText.replace(/,/g, "");
+          tuText = tuText.replace(/,/g, "");
+        }
+
+        const ic = parseFloat(icText) || 0;
+        const tu = parseFloat(tuText) || 0;
+        const dur = parseInt(el.duration.value);
+        simulationStartYear = new Date().getFullYear();
+
+        const payload = {
+          ticker: document.getElementById("assetTicker").value,
+          initialCapital: ic,
+          topupAmount: tu,
+          startYear: simulationStartYear,
+          endYear: simulationStartYear + dur,
+          duration: dur,
+          interval: parseInt(document.getElementById("interval").value),
         };
 
-        const formatters = {
-            USD: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }),
-            IDR: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }),
-            EUR: new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })
-        };
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/simulate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-        const inputFormatters = {
-            USD: new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }),
-            IDR: new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }),
-            EUR: new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 })
-        };
+          const data = await response.json();
+          if (data.error) throw new Error(data.error);
 
-        function money(val) {
-            return formatters[el.currency.value].format(val);
+          currentSimulationData = data;
+          el.loader.classList.add("hidden");
+          startAnimation(data);
+        } catch (err) {
+          el.loader.classList.add("hidden");
+          console.error(err);
+        }
+      }
+
+      function startAnimation(data) {
+        isAnimating = true;
+        el.chartPlaceholder.classList.add("hidden");
+        el.btnText.textContent = "Berhenti";
+        el.simulateBtn.classList.replace("bg-emerald-600", "bg-red-600");
+        el.playbackStatus.classList.remove("hidden");
+
+        el.assetCard.classList.remove("hidden");
+        el.assetName.textContent = data.asset.name;
+        el.assetTickerLabel.textContent =
+          document.getElementById("assetTicker").value;
+        el.assetCagr.textContent = `${data.asset.cagr}%`;
+
+        let step = 0;
+        const target = data.history.length - 1;
+        animationInterval = setInterval(() => {
+          if (step <= target) {
+            renderUI(data.history.slice(0, step + 1));
+            step++;
+          } else {
+            stopAnimation();
+          }
+        }, 100);
+      }
+
+      function stopAnimation() {
+        isAnimating = false;
+        clearInterval(animationInterval);
+        el.btnText.textContent = "Jalankan Simulasi";
+        el.simulateBtn.classList.replace("bg-red-600", "bg-emerald-600");
+        el.playbackStatus.classList.add("hidden");
+      }
+
+      function renderUI(currentHistory) {
+        const latest = currentHistory[currentHistory.length - 1];
+        const isDark = document.documentElement.classList.contains("dark");
+        const gridColor = isDark ? "rgba(255, 255, 255, 0.1)" : "#f1f5f9";
+        const textColor = isDark ? "#94a3b8" : "#64748b";
+
+        const profit = latest.balance - latest.invested;
+        el.statInvested.textContent = money(latest.invested);
+        el.statProfit.textContent = money(profit);
+        el.statTotal.textContent = money(latest.balance);
+
+        if (profit >= 0) {
+          el.statTotalContainer.style.borderColor = "#10b981";
+          el.statTotalLabel.style.color = "#10b981";
+          el.statTotal.style.color = "#10b981";
+        } else {
+          el.statTotalContainer.style.borderColor = "#ef4444";
+          el.statTotalLabel.style.color = "#ef4444";
+          el.statTotal.style.color = "#ef4444";
         }
 
-        function formatNumberForInput(val) {
-            let cleanVal = val.replace(/[^\d,.]/g, '');
-            const selectedCurrency = el.currency.value;
-            if (selectedCurrency === 'IDR' || selectedCurrency === 'EUR') {
-                cleanVal = cleanVal.replace(/\./g, '').replace(/,/g, '.');
-            } else {
-                cleanVal = cleanVal.replace(/,/g, '');
-            }
-            const num = parseFloat(cleanVal) || 0;
-            return inputFormatters[el.currency.value].format(num);
-        }
+        const ctx = document.getElementById("growthChart").getContext("2d");
+        const labels = currentHistory.map((d) => simulationStartYear + d.year);
 
-        function updateInputValues() {
-            const initialCapitalEl = document.getElementById('initialCapital');
-            const topupAmountEl = document.getElementById('topupAmount');
-            let initialCapitalRaw = initialCapitalEl.value.replace(/[^\d,.]/g, '');
-            let topupAmountRaw = topupAmountEl.value.replace(/[^\d,.]/g, '');
-            const selectedCurrency = el.currency.value;
-            if (selectedCurrency === 'IDR' || selectedCurrency === 'EUR') {
-                initialCapitalRaw = initialCapitalRaw.replace(/\./g, '').replace(/,/g, '.');
-                topupAmountRaw = topupAmountRaw.replace(/\./g, '').replace(/,/g, '.');
-            } else {
-                initialCapitalRaw = initialCapitalRaw.replace(/,/g, '');
-                topupAmountRaw = topupAmountRaw.replace(/,/g, '');
-            }
-            initialCapitalEl.value = formatNumberForInput(initialCapitalRaw);
-            topupAmountEl.value = formatNumberForInput(topupAmountRaw);
-        }
+        if (chartInstance) chartInstance.destroy();
 
-        // --- LOGIKA DARK MODE ---
-        function toggleTheme() {
-            const html = document.documentElement;
-            const isDark = html.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        // Warna dinamis untuk garis dan fill chart
+        const chartColor = profit >= 0 ? "#10b981" : "#ef4444";
+        const chartBg =
+          profit >= 0
+            ? isDark
+              ? "rgba(16, 185, 129, 0.1)"
+              : "rgba(16, 185, 129, 0.05)"
+            : isDark
+            ? "rgba(239, 68, 68, 0.1)"
+            : "rgba(239, 68, 68, 0.05)";
 
-            // Re-render chart jika ada data agar warna grid update
-            if (currentSimulationData) {
-                renderUI(currentSimulationData.history.slice(0, parseInt(el.duration.value) + 1));
-            }
-        }
-
-        // Load theme on startup
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-
-        el.themeToggle.addEventListener('click', toggleTheme);
-
-        el.currency.addEventListener('change', () => updateInputValues());
-
-        document.getElementById('initialCapital').addEventListener('input', (e) => {
-            const value = e.target.value.replace(/[^\d.]/g, '');
-            e.target.value = formatNumberForInput(value);
+        chartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Nilai Aset",
+                data: currentHistory.map((d) => d.balance),
+                borderColor: chartColor,
+                borderWidth: 4,
+                backgroundColor: chartBg,
+                fill: true,
+                tension: 0.4,
+              },
+              {
+                label: "Modal",
+                data: currentHistory.map((d) => d.invested),
+                borderColor: isDark ? "#475569" : "#cbd5e1",
+                borderWidth: 2,
+                borderDash: [5, 5],
+                fill: false,
+                tension: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: {
+                grid: { color: gridColor },
+                ticks: { callback: (v) => money(v), color: textColor },
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: textColor },
+              },
+            },
+          },
         });
+      }
 
-        document.getElementById('topupAmount').addEventListener('input', (e) => {
-            const value = e.target.value.replace(/[^\d.]/g, '');
-            e.target.value = formatNumberForInput(value);
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateInputValues();
-            loadTickers();
-        });
-
-        el.duration.addEventListener('input', (e) => {
-            el.durationDisplay.textContent = `${e.target.value} Tahun`;
-            if (!isAnimating && currentSimulationData) {
-                renderUI(currentSimulationData.history.slice(0, parseInt(e.target.value) + 1));
-            }
-        });
-
-        async function runSimulation() {
-            if (isAnimating) {
-                stopAnimation();
-                return;
-            }
-
-            el.loader.classList.remove('hidden');
-
-            let icText = document.getElementById('initialCapital').value;
-            let tuText = document.getElementById('topupAmount').value;
-            const selCur = el.currency.value;
-
-            if (selCur === 'IDR' || selCur === 'EUR') {
-                icText = icText.replace(/\./g, '').replace(/,/g, '.');
-                tuText = tuText.replace(/\./g, '').replace(/,/g, '.');
-            } else {
-                icText = icText.replace(/,/g, '');
-                tuText = tuText.replace(/,/g, '');
-            }
-
-            const ic = parseFloat(icText) || 0;
-            const tu = parseFloat(tuText) || 0;
-            const dur = parseInt(el.duration.value);
-            simulationStartYear = new Date().getFullYear();
-
-            const payload = {
-                ticker: document.getElementById('assetTicker').value,
-                initialCapital: ic,
-                topupAmount: tu,
-                startYear: simulationStartYear,
-                endYear: simulationStartYear + dur,
-                duration: dur,
-                interval: parseInt(document.getElementById('interval').value)
-            };
-
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/simulate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                if (data.error) throw new Error(data.error);
-
-                currentSimulationData = data;
-                el.loader.classList.add('hidden');
-                startAnimation(data);
-            } catch (err) {
-                el.loader.classList.add('hidden');
-                console.error(err);
-            }
-        }
-
-        function startAnimation(data) {
-            isAnimating = true;
-            el.chartPlaceholder.classList.add('hidden');
-            el.btnText.textContent = "Berhenti";
-            el.simulateBtn.classList.replace('bg-emerald-600', 'bg-red-600');
-            el.playbackStatus.classList.remove('hidden');
-
-            el.assetCard.classList.remove('hidden');
-            el.assetName.textContent = data.asset.name;
-            el.assetTickerLabel.textContent = document.getElementById('assetTicker').value;
-            el.assetCagr.textContent = `${data.asset.cagr}%`;
-
-            let step = 0;
-            const target = data.history.length - 1;
-            animationInterval = setInterval(() => {
-                if (step <= target) {
-                    renderUI(data.history.slice(0, step + 1));
-                    step++;
-                } else {
-                    stopAnimation();
-                }
-            }, 100);
-        }
-
-        function stopAnimation() {
-            isAnimating = false;
-            clearInterval(animationInterval);
-            el.btnText.textContent = "Jalankan Simulasi";
-            el.simulateBtn.classList.replace('bg-red-600', 'bg-emerald-600');
-            el.playbackStatus.classList.add('hidden');
-        }
-
-        function renderUI(currentHistory) {
-            const latest = currentHistory[currentHistory.length - 1];
-            const isDark = document.documentElement.classList.contains('dark');
-            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9';
-            const textColor = isDark ? '#94a3b8' : '#64748b';
-
-            const profit = latest.balance - latest.invested;
-            el.statInvested.textContent = money(latest.invested);
-            el.statProfit.textContent = money(profit);
-            el.statTotal.textContent = money(latest.balance);
-
-            if (profit >= 0) {
-                el.statTotalContainer.style.borderColor = '#10b981';
-                el.statTotalLabel.style.color = '#10b981';
-                el.statTotal.style.color = '#10b981';
-            } else {
-                el.statTotalContainer.style.borderColor = '#ef4444';
-                el.statTotalLabel.style.color = '#ef4444';
-                el.statTotal.style.color = '#ef4444';
-            }
-
-            const ctx = document.getElementById('growthChart').getContext('2d');
-            const labels = currentHistory.map(d => simulationStartYear + d.year);
-
-            if (chartInstance) chartInstance.destroy();
-
-            // Warna dinamis untuk garis dan fill chart
-            const chartColor = profit >= 0 ? '#10b981' : '#ef4444';
-            const chartBg = profit >= 0
-                ? (isDark ? 'rgba(16, 185, 129, 0.1)' : 'rgba(16, 185, 129, 0.05)')
-                : (isDark ? 'rgba(239, 68, 68, 0.1)' : 'rgba(239, 68, 68, 0.05)');
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Nilai Aset',
-                            data: currentHistory.map(d => d.balance),
-                            borderColor: chartColor,
-                            borderWidth: 4,
-                            backgroundColor: chartBg,
-                            fill: true,
-                            tension: 0.4
-                        },
-                        {
-                            label: 'Modal',
-                            data: currentHistory.map(d => d.invested),
-                            borderColor: isDark ? '#475569' : '#cbd5e1',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            fill: false,
-                            tension: 0
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            grid: { color: gridColor },
-                            ticks: { callback: v => money(v), color: textColor }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: textColor }
-                        }
-                    }
-                }
+      async function loadTickers() {
+        try {
+          const response = await fetch(`${BACKEND_URL}/api/tickers`);
+          const data = await response.json();
+          if (data.tickers) {
+            const datalist = document.getElementById("tickerList");
+            datalist.innerHTML = "";
+            data.tickers.forEach((t) => {
+              const opt = document.createElement("option");
+              opt.value = t.symbol;
+              opt.textContent = `${t.name} (${t.symbol})`;
+              datalist.appendChild(opt);
             });
+          }
+        } catch (error) {
+          console.error("Error loading tickers:", error);
         }
+      }
 
-        async function loadTickers() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/tickers`);
-                const data = await response.json();
-                if (data.tickers) {
-                    const datalist = document.getElementById('tickerList');
-                    datalist.innerHTML = '';
-                    data.tickers.forEach(t => {
-                        const opt = document.createElement('option');
-                        opt.value = t.symbol;
-                        opt.textContent = `${t.name} (${t.symbol})`;
-                        datalist.appendChild(opt);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading tickers:', error);
-            }
-        }
-
-        el.simulateBtn.addEventListener('click', runSimulation);
+      el.simulateBtn.addEventListener("click", runSimulation);
     </script>
-</body>
-
+  </body>
 </html>
