@@ -73,7 +73,7 @@
   </head>
 
   <body
-    class="bg-slate-50 text-slate-900 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100"
+    class="bg-gray-200 text-slate-900 font-sans transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100"
   >
     <div class="min-h-screen p-4 md:p-8 flex flex-col">
       <div class="max-w-6xl mx-auto w-full flex-grow">
@@ -105,11 +105,9 @@
                 viewBox="0 0 24 24"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707m12.728 0A9 9 0 115.55 12a9 9 0 0112.728-12.728z"
-                ></path>
+                  fill="currentColor"
+                  d="M12 19a1 1 0 0 1 .993.883L13 20v1a1 1 0 0 1-1.993.117L11 21v-1a1 1 0 0 1 1-1m6.313-2.09l.094.083l.7.7a1 1 0 0 1-1.32 1.497l-.094-.083l-.7-.7a1 1 0 0 1 1.218-1.567zm-11.306.083a1 1 0 0 1 .083 1.32l-.083.094l-.7.7a1 1 0 0 1-1.497-1.32l.083-.094l.7-.7a1 1 0 0 1 1.414 0M4 11a1 1 0 0 1 .117 1.993L4 13H3a1 1 0 0 1-.117-1.993L3 11zm17 0a1 1 0 0 1 .117 1.993L21 13h-1a1 1 0 0 1-.117-1.993L20 11zM6.213 4.81l.094.083l.7.7a1 1 0 0 1-1.32 1.497l-.094-.083l-.7-.7A1 1 0 0 1 6.11 4.74zm12.894.083a1 1 0 0 1 .083 1.32l-.083.094l-.7.7a1 1 0 0 1-1.497-1.32l.083-.094l.7-.7a1 1 0 0 1 1.414 0M12 2a1 1 0 0 1 .993.883L13 3v1a1 1 0 0 1-1.993.117L11 4V3a1 1 0 0 1 1-1m0 5a5 5 0 1 1-4.995 5.217L7 12l.005-.217A5 5 0 0 1 12 7"
+                />
               </svg>
               <svg
                 id="themeIconMoon"
@@ -420,10 +418,10 @@
       class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 hidden"
     >
       <div
-        class="bg-white p-10 rounded-[40px] shadow-2xl text-center dark:bg-slate-800"
+        class="p-10 rounded-[40px] shadow-2xl text-center dark:bg-slate-800 bg-slate-800"
       >
         <div class="loader mx-auto my-4"></div>
-        <p class="font-black text-slate-800 text-sm uppercase dark:text-white">
+        <p class="font-black text-slate-800 text-sm uppercase text-white">
           Mengambil data ...
         </p>
       </div>
@@ -644,6 +642,7 @@
 
         let step = 0;
         const target = data.history.length - 1;
+
         animationInterval = setInterval(() => {
           if (step <= target) {
             renderUI(data.history.slice(0, step + 1));
