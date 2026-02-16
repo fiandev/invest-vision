@@ -18,6 +18,11 @@ CORS(app)
 def index():
     # Flask akan otomatis mencari 'index.html' di dalam folder 'views'
     return render_template('index.html')
+
+@app.route('/time-machine')
+def time_machine():
+    return render_template('time-machine.html')
+
 @app.route('/api/tickers', methods=['GET'])
 def get_tickers():
     """Endpoint to get a list of popular tickers"""
@@ -301,6 +306,159 @@ def simulate():
         })
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/time-machine', methods=['POST'])
+def time_machine_api():
+    try:
+        data = request.json
+        ticker_symbol = data.get('ticker', 'AAPL').upper()
+        initial_capital = float(data.get('initialCapital', 0))
+        topup_amount = float(data.get('topupAmount', 0))
+        start_year = int(data.get('startYear', 2010))
+        duration_years = int(data.get('duration', 10))
+        end_year = start_year + duration_years
+        interval_per_year = int(data.get('interval', 12)) # 12 = monthly, 1 = yearly
+        
+        # 1. Fetch Historical Data
+        asset = yf.Ticker(ticker_symbol)
+        
+        # Determine start and end dates based on year
+        start_date = f"{start_year}-01-01"
+        end_date = f"{end_year}-12-31"
+        
+        # Fetch history with some buffer to ensure we get start of year data
+        hist = asset.history(start=start_date, end=end_date)
+        
+        if hist.empty:
+            return jsonify({"error": f"No data found for {ticker_symbol} in range {start_year}-{end_year}"}), 404
+            
+        if 'Close' not in hist.columns:
+            return jsonify({"error": "No closing price data available"}), 404
+            
+        # Ensure index is datetime
+        hist.index = pd.to_datetime(hist.index)
+        
+        # 2. Simulation Logic
+        # We need to simulate buying at specific intervals.
+        # Since exact dates might not exist in market data, we'll use "asof" or nearest date logic,
+        # or simplified monthly/yearly resampling.
+        
+        # Resample to the requested interval to get investment dates
+        if interval_per_year == 12:
+            resampled_data = hist.resample('ME').last() # Monthly End
+        elif interval_per_year == 1:
+            resampled_data = hist.resample('YE').last() # Yearly End
+        elif interval_per_year == 52:
+            resampled_data = hist.resample('W').last() # Weekly
+        elif interval_per_year == 4:
+            resampled_data = hist.resample('QE').last() # Quarterly End
+        elif interval_per_year == 365:
+             resampled_data = hist # Daily (approx)
+        else:
+            resampled_data = hist.resample('ME').last() # Default to monthly
+            
+        # Filter strictly within the requested year range (resampling might include edge cases)
+        resampled_data = resampled_data[(resampled_data.index.year >= start_year) & (resampled_data.index.year <= end_year)]
+        
+        # We also need the very first price of the start_year for the initial capital investment
+        # Get the first available data point in the start year
+        first_day_data = hist[hist.index.year == start_year].iloc[0] if not hist[hist.index.year == start_year].empty else hist.iloc[0]
+        start_price = first_day_data['Close']
+        
+        # Simulation State
+        shares_owned = initial_capital / start_price
+        total_invested = initial_capital
+        history = []
+        
+        # Initial Record
+        history.append({
+            "date": first_day_data.name.strftime('%Y-%m-%d'),
+            "year": first_day_data.name.year,
+            "balance": round(shares_owned * start_price, 2),
+            "invested": round(total_invested, 2),
+            "price": round(start_price, 2)
+        })
+        
+        # Iterate through resampled intervals for Top-Up
+        for date, row in resampled_data.iterrows():
+            # Skip if it's the same as start date (already handled initial capital)
+            # But usually resampled 'ME' is month end, while start is beginning of year.
+            
+            current_price = row['Close']
+            if pd.isna(current_price): continue
+            
+            # Buy more shares with topup amount
+            shares_bought = topup_amount / current_price
+            shares_owned += shares_bought
+            total_invested += topup_amount
+            
+            # Record status
+            current_balance = shares_owned * current_price
+            
+            history.append({
+                "date": date.strftime('%Y-%m-%d'),
+                "year": date.year,
+                "balance": round(current_balance, 2),
+                "invested": round(total_invested, 2),
+                "price": round(current_price, 2)
+            })
+            
+        # Calculate CAGR
+        final_balance = history[-1]['balance']
+        # CAGR formula: (End Value / Start Value) ^ (1 / n) - 1
+        # But here 'Start Value' for CAGR is a bit complex due to DCA.
+        # Simply return Total Return % for now, or Money Weighted Return (IRR) if needed.
+        # Let's stick to simple absolute return for the UI first.
+        
+        total_profit = final_balance - total_invested
+        return_percentage = (total_profit / total_invested) * 100 if total_invested > 0 else 0
+        
+        # Validasi Asset Info (Safeguard)
+        long_name = asset.info.get('longName') 
+        if long_name is None:
+            long_name = ticker_symbol
+
+        currency = asset.info.get('currency')
+        if currency is None:
+            currency = 'USD'
+
+        asset_info = {
+            "name": long_name,
+            "return_pct": round(return_percentage, 2),
+            "price": round(history[-1]['price'], 2),
+            "currency": currency,
+            "desc": f"Historical Simulation {start_year}-{end_year}"
+        }
+
+        # Filter history for Chart (User Request: "biar ga terlalu lama")
+        # Optimization: If simulation was high frequency (Daily/Weekly),
+        # we still want to show a smooth Monthly chart to reduce payload/rendering load.
+        display_history = []
+        if interval_per_year > 12: # If frequency is higher than monthly
+            last_added_month = None
+            for entry in history:
+                # Parse date or use 'year' and month extraction
+                # entry['date'] is 'YYYY-MM-DD'
+                entry_month = entry['date'][:7] # 'YYYY-MM'
+                
+                if entry_month != last_added_month:
+                    display_history.append(entry)
+                    last_added_month = entry_month
+            
+            # Ensure the very last state is included
+            if history[-1] != display_history[-1]:
+                display_history.append(history[-1])
+        else:
+            display_history = history
+
+        return jsonify({
+            "asset": asset_info,
+            "history": display_history
+        })
+
+    except Exception as e:
+        print(f"Error in time_machine_api: {e}") # Debugging
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
